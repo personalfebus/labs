@@ -1,0 +1,9 @@
+rotationX=5
+rotationY=20
+shiftX=-30
+shiftY=-90
+lightEnable=0
+textureEnable=1
+animationEnable=0
+
+

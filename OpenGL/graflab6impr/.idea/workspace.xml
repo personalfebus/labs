@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated>
+      <config projectName="graflab6impr" targetName="graflab6impr" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="61f0fbf1-c425-4f04-a019-dfb93254ec37" name="Default Changelist" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="ProjectId" id="1cSwoX0dpmmgXyl6Ws1ZHFSrKVw" />
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="settings.editor.selected.configurable" value="project.scopes" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="graflab6impr" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="graflab6impr" TARGET_NAME="graflab6impr" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="graflab6impr" RUN_TARGET_NAME="graflab6impr">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="61f0fbf1-c425-4f04-a019-dfb93254ec37" name="Default Changelist" comment="" />
+      <created>1590535477091</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1590535477091</updated>
+      <workItem from="1590535478722" duration="13155000" />
+      <workItem from="1590669035563" duration="18241000" />
+      <workItem from="1590749828401" duration="8214000" />
+      <workItem from="1590785833585" duration="1580000" />
+      <workItem from="1591105632899" duration="6530000" />
+      <workItem from="1591121437793" duration="2439000" />
+      <workItem from="1591208294317" duration="798000" />
+      <workItem from="1591227813079" duration="8191000" />
+      <workItem from="1591277310933" duration="588000" />
+      <workItem from="1591295770762" duration="62000" />
+      <workItem from="1591714795641" duration="1895000" />
+      <workItem from="1591734834753" duration="501000" />
+      <workItem from="1591735892426" duration="26000" />
+      <workItem from="1591737253396" duration="961000" />
+      <workItem from="1591781632466" duration="602000" />
+    </task>
+    <servers />
+  </component>
+</project>

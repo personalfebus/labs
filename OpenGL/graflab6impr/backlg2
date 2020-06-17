@@ -1,0 +1,60 @@
+//        glBegin(GL_POLYGON);
+//        glNormal3f(normals[0][4], normals[1][4], normals[2][4]);
+//        glTexCoord2f(0.0f, 0.0f);
+//        glVertex3f(10*verticies[0][4], 10*verticies[1][4], 10*verticies[2][4] - 700);
+//
+//        glNormal3f(normals[3*angle_count / 2 - 15][4], normals[3*angle_count / 2 - 14][4], normals[3*angle_count / 2 - 13][4]);
+//        glTexCoord2f(0.5f, 0.0f);
+//        glVertex3f(10*verticies[3*angle_count / 2 - 15][4], 10*verticies[3*angle_count / 2 - 14][4], 10*verticies[3*angle_count / 2 - 13][4] - 700);
+//
+//        glNormal3f(normals[3*angle_count / 2 - 3][4], normals[3*angle_count / 2 - 2][4], normals[3*angle_count / 2 - 1][4]);
+//        glTexCoord2f(1.0f, 0.0f);
+//        glVertex3f(10*verticies[3*angle_count / 2 - 3][4], 10*verticies[3*angle_count / 2 - 2][4], 10*verticies[3*angle_count / 2 - 1][4] - 700);
+//
+//        glNormal3f(normals[3*angle_count / 2 - 3][10], normals[3*angle_count / 2 - 2][10], normals[3*angle_count / 2 - 1][10]);
+//        glTexCoord2f(1.0f, 1.0f);
+//        glVertex3f(10*verticies[3*angle_count / 2 - 3][10], 10*verticies[3*angle_count / 2 - 2][10], 10*verticies[3*angle_count / 2 - 1][10] - 700);
+//
+//        glNormal3f(normals[3*angle_count / 2 - 15][10], normals[3*angle_count / 2 - 14][10], normals[3*angle_count / 2 - 13][10]);
+//        glTexCoord2f(0.5f, 1.0f);
+//        glVertex3f(10*verticies[3*angle_count / 2 - 15][10], 10*verticies[3*angle_count / 2 - 14][10], 10*verticies[3*angle_count / 2 - 13][10] - 700);
+//
+//        glNormal3f(normals[0][10], normals[1][10], normals[2][10]);
+//        glTexCoord2f(0.0f, 1.0f);
+//        glVertex3f(10*verticies[0][10], 10*verticies[1][10], 10*verticies[2][10] - 700);
+////        glBegin(GL_LINE_STRIP);
+//        float textureStep = 1.0f / angle_count * 2;
+//        float currentStep = 0;
+//        //std::cout << textureStep;
+//        for (int j = 0; j < 3*angle_count / 2; j += 3){
+//            glNormal3f(normals[j][4], normals[j + 1][4], normals[j + 2][4]);
+//            glTexCoord2f(currentStep, 0.0f);
+//            glVertex3f(10*verticies[j][4], 10*verticies[j + 1][4], 10*verticies[j + 2][4] - 700);
+//            std::cout << "vertex4 = " << j/3 << "; texcoord = " << currentStep << ";\n";
+//            currentStep += textureStep;
+//        }
+////        glNormal3f(normals[0][4], normals[0 + 1][4], normals[0 + 2][4]);
+////        glTexCoord2f(1.0, 0.0f);
+////        glVertex3f(10*verticies[0][4], 10*verticies[0 + 1][4], 10*verticies[0 + 2][4] - 700);
+//        //glEnd();
+//        //glBegin(GL_LINE_STRIP);
+//        currentStep = 1.0;
+//        for (int j = 3*angle_count / 2 - 3; j >= 0; j -= 3){
+//            glNormal3f(normals[j][10], normals[j + 1][10], normals[j + 2][10]);
+//            glTexCoord2f(currentStep, 1.0f);
+//            glVertex3f(10 * verticies[j][10], 10 * verticies[j + 1][10], 10 * verticies[j + 2][10] - 700);
+//            std::cout << "vertex10 = " << j/3 << "; texcoord = " << currentStep << ";\n";
+//            currentStep -= textureStep;
+//        }
+//        std::cout << "-------------\n";
+////        glNormal3f(normals[3*angle_count - 3][10], normals[3*angle_count - 2][10], normals[3*angle_count - 1][10]);
+////        glTexCoord2f(0.0, 1.0f);
+////        glVertex3f(10*verticies[3*angle_count - 3][10], 10*verticies[3*angle_count - 2][10], 10*verticies[3*angle_count - 1][10] - 700);
+//
+////        glNormal3f(normals[0][4], normals[0 + 1][4], normals[0 + 2][4]);
+////        glTexCoord2f(0.0f, 0.0f);
+////        glVertex3f(10*verticies[0][4], 10*verticies[0 + 1][4], 10*verticies[0 + 2][4] - 700);
+//        glEnd();
+
+
+

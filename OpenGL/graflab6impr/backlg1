@@ -1,0 +1,715 @@
+//
+// Created by gleb8 on 4/15/2020.
+//
+#include <GLFW/glfw3.h>
+#include <cmath>
+
+class Parab{
+public:
+    int AA;
+    int BB;
+    int z_cap;
+    int z_step;
+    int z_count;
+    int angle_count;
+    float anglestep;
+    float *sinuses;
+    float *cosinuses;
+    float **verticies;
+    float **normals;
+    explicit Parab(int a, int b, int zc, int zs, float as);
+    void draw(int drawMode, GLboolean ts);
+    void remakePar(int a, int b, int zc, int zs, float as);
+    GLuint LoadTexture(const char *filename);
+    virtual ~Parab();
+};
+
+Parab::Parab(int a, int b, int zc, int zs, float as) {
+    AA = a;
+    BB = b;
+    z_cap = zc;
+    z_step = zs;
+    anglestep = as;
+
+    GLuint texture = LoadTexture("D:\\_IT\\CLionProjects\\graflab6impr\\wood-texture.bmp");
+
+    angle_count = (int)(M_PI * 2 / anglestep);
+    z_count = (int)(z_cap / z_step);
+
+//    std::cout << angle_count << " " << anglestep;
+
+    verticies = new float*[3*angle_count];
+    for (int i = 0; i < 3*angle_count; i++){
+        verticies[i] = new float[z_count];
+    }
+
+    normals = new float*[3*angle_count];
+    for (int i = 0; i < 3*angle_count; i++){
+        normals[i] = new float[z_count];
+    }
+
+    sinuses = new float[angle_count];
+    cosinuses = new float[angle_count];
+
+
+    for (int i = 0; i < z_count; i++){
+        for (int j = 0; j < 3*angle_count; j++){
+            verticies[j][i] = 0;
+            normals[j][i] = 0;
+        }
+    }
+
+    float current_angle = 0;
+    for (int i = 0; i < angle_count; i++){
+        sinuses[i] = sinf(current_angle);
+        cosinuses[i] = cosf(current_angle);
+//        std::cout << "angle = " << current_angle << "; sin = " << sinuses[i] << "; cos = " << cosinuses[i] << ";\n";
+        current_angle += anglestep;
+    }
+    //x = a * cos(t)
+    //y = b * sin(t)
+    float z = z_step;
+    for (int i = 1; i < z_count; i++){
+        //std::cout << "\nZ = " << z << std::endl;
+        float current_BB = BB * sqrtf(z);
+        float current_AA = AA * sqrtf(z);
+        int k = 0;
+
+        for (int j = 0; j < angle_count; j++){
+            verticies[k][i] = current_AA * cosinuses[j];
+            k++;
+            verticies[k][i] = current_BB * sinuses[j];
+            k++;
+            verticies[k][i] = z;
+            k++;
+//            std::cout << "Vertex(" << j << "): x = " << verticies[k - 3][i] << "; y = " << verticies[k - 2][i]
+//                      << "; z = " << verticies[k - 1][i] << std::endl;
+        }
+
+        z += z_step;
+    }
+
+    //новый цикл для нормалей :)
+    int start = 1;
+
+    for (int i = start; i < z_count - 1; i++){
+        for (int j = 0; j < 3*angle_count; j += 3){
+            if (j >= 3*angle_count - 3){
+                //std::cout << "est";
+
+                //glVertex3f(10 * verticies[j][i], 10 * verticies[j + 1][i], 10 * verticies[j + 2][i] - 700);
+                //нормаль в вершине vertex1
+                //A = vertex2 - vertex1
+                //B = vertex4 - vertex1
+                //нормальХ = Ay*Bz - By*Az;
+                //нормальУ = Az*Bx - Bz*Ax;
+                //нормальZ = Ax*By - Bx*Ay;
+                GLfloat Ax = (10 * verticies[j][i + 1]) - (10 * verticies[j][i]);
+                GLfloat Ay = (10 * verticies[j + 1][i + 1]) - (10 * verticies[j + 1][i]);
+                GLfloat Az = (10 * verticies[j + 2][i + 1]) - (10 * verticies[j + 2][i]);
+
+                GLfloat Bx = (10 * verticies[0][i]) - (10 * verticies[j][i]);
+                GLfloat By = (10 * verticies[1][i]) - (10 * verticies[j + 1][i]);
+                GLfloat Bz = (10 * verticies[2][i]) - (10 * verticies[j + 2][i]);
+
+                normals[j][i] = Ay*Bz - By*Az;
+                normals[j + 1][i] = Az*Bx - Bz*Ax;
+                normals[j + 2][i] = Ax*By - Bx*Ay;
+
+                //Изменение ориентации нормалей
+                normals[j][i] *= -1;
+                normals[j + 1][i] *= -1;
+                normals[j + 2][i] *= -1;
+
+                //glVertex3f(10 * verticies[j][i + 1], 10 * verticies[j + 1][i + 1], 10 * verticies[j + 2][i + 1] - 700);
+                //glVertex3f(10 * verticies[0][i + 1], 10 * verticies[1][i + 1], 10 * verticies[2][i + 1] - 700);
+                //нормаль в вершине vertex4
+                //A = vertex3 - vertex4
+                //B = vertex1 - vertex4
+                //нормальХ = Ay*Bz - By*Az;
+                //нормальУ = Az*Bx - Bz*Ax;
+                //нормальZ = Ax*By - Bx*Ay;
+//                Ax = (10 * verticies[0][i + 1]) - (10 * verticies[0][i]);
+//                Ay = (10 * verticies[1][i + 1]) - (10 * verticies[1][i]);
+//                Az = (10 * verticies[2][i + 1]) - (10 * verticies[2][i]);
+//
+//                Bx *= -1;
+//                By *= -1;
+//                Bz *= -1;
+//
+//                normals[j][i] = Ay*Bz - By*Az;
+//                normals[j + 1][i] = Az*Bx - Bz*Ax;
+//                normals[j + 2][i] = Ax*By - Bx*Ay;
+                //glVertex3f(10 * verticies[0][i], 10 * verticies[1][i], 10 * verticies[2][i] - 700);
+                //std::cout << "Normal = " << "{" << normals[j][i] << ", " << normals[j + 1][i] << ", " << normals[j + 2][i] << "}\n";
+            } else {
+                //glVertex3f(10 * verticies[j][i], 10 * verticies[j + 1][i], 10 * verticies[j + 2][i] - 700);
+                //нормаль в вершине vertex1
+                //A = vertex2 - vertex1
+                //B = vertex4 - vertex1
+                //нормальХ = Ay*Bz - By*Az;
+                //нормальУ = Az*Bx - Bz*Ax;
+                //нормальZ = Ax*By - Bx*Ay;
+                GLfloat Ax = (10 * verticies[j][i + 1]) - (10 * verticies[j][i]);
+                GLfloat Ay = (10 * verticies[j + 1][i + 1]) - (10 * verticies[j + 1][i]);
+                GLfloat Az = (10 * verticies[j + 2][i + 1]) - (10 * verticies[j + 2][i]);
+
+                GLfloat Bx = (10 * verticies[j + 3][i]) - (10 * verticies[j][i]);
+                GLfloat By = (10 * verticies[j + 4][i]) - (10 * verticies[j + 1][i]);
+                GLfloat Bz = (10 * verticies[j + 5][i]) - (10 * verticies[j + 2][i]);
+
+                normals[j][i] = Ay*Bz - By*Az;
+                normals[j + 1][i] = Az*Bx - Bz*Ax;
+                normals[j + 2][i] = Ax*By - Bx*Ay;
+
+                //Изменение ориентации нормалей
+                normals[j][i] *= -1;
+                normals[j + 1][i] *= -1;
+                normals[j + 2][i] *= -1;
+
+                //glVertex3f(10 * verticies[j][i + 1], 10 * verticies[j + 1][i + 1], 10 * verticies[j + 2][i + 1] - 700);
+                //glVertex3f(10 * verticies[j + 3][i + 1], 10 * verticies[j + 4][i + 1], 10 * verticies[j + 5][i + 1] - 700);
+                //нормаль в вершине vertex4
+                //A = vertex3 - vertex4
+                //B = vertex1 - vertex4
+                //нормальХ = Ay*Bz - By*Az;
+                //нормальУ = Az*Bx - Bz*Ax;
+                //нормальZ = Ax*By - Bx*Ay;
+//                Ax = (10 * verticies[j + 3][i + 1]) - (10 * verticies[j + 3][i]);
+//                Ay = (10 * verticies[j + 4][i + 1]) - (10 * verticies[j + 4][i]);
+//                Az = (10 * verticies[j + 5][i + 1]) - (10 * verticies[j + 5][i]);
+//
+//                Bx *= -1;
+//                By *= -1;
+//                Bz *= -1;
+//
+//                normals[j + 3][i] = Ay*Bz - By*Az;
+//                normals[j + 4][i] = Az*Bx - Bz*Ax;
+//                normals[j + 5][i] = Ax*By - Bx*Ay;
+                //glVertex3f(10 * verticies[j + 3][i], 10 * verticies[j + 4][i], 10 * verticies[j + 5][i] - 700);
+                //std::cout << "Normal = " << "{" << normals[j][i] << ", " << normals[j + 1][i] << ", " << normals[j + 2][i] << "}\n";
+            }
+        }
+    }
+}
+
+Parab::~Parab() {
+    for (int i = 0; i < 3*angle_count; i++){
+        delete[] verticies[i];
+    }
+    delete[] verticies;
+    for (int i = 0; i < 3*angle_count; i++){
+        delete[] normals[i];
+    }
+    delete[] normals;
+    delete[] sinuses;
+    delete[] cosinuses;
+}
+
+void Parab::remakePar(int a, int b, int zc, int zs, float as) {
+
+    for (int i = 0; i < 3*angle_count; i++){
+        delete[] verticies[i];
+    }
+    delete[] verticies;
+    for (int i = 0; i < 3*angle_count; i++){
+        delete[] normals[i];
+    }
+    delete[] normals;
+    delete[] sinuses;
+    delete[] cosinuses;
+
+    AA = a;
+    BB = b;
+    z_cap = zc;
+    z_step = zs;
+    anglestep = as;
+
+    angle_count = (int)(M_PI * 2 / anglestep);
+    z_count = (int)(z_cap / z_step);
+
+//    std::cout << angle_count << " " << anglestep;
+
+    verticies = new float*[3*angle_count];
+    for (int i = 0; i < 3*angle_count; i++){
+        verticies[i] = new float[z_count];
+    }
+
+    normals = new float*[3*angle_count];
+    for (int i = 0; i < 3*angle_count; i++){
+        normals[i] = new float[z_count];
+    }
+
+    sinuses = new float[angle_count];
+    cosinuses = new float[angle_count];
+
+
+    for (int i = 0; i < z_count; i++){
+        for (int j = 0; j < 3*angle_count; j++){
+            verticies[j][i] = 0;
+            normals[j][i] = 0;
+        }
+    }
+
+    float current_angle = 0;
+    for (int i = 0; i < angle_count; i++){
+        sinuses[i] = sinf(current_angle);
+        cosinuses[i] = cosf(current_angle);
+//        std::cout << "angle = " << current_angle << "; sin = " << sinuses[i] << "; cos = " << cosinuses[i] << ";\n";
+        current_angle += anglestep;
+    }
+    //x = a * cos(t)
+    //y = b * sin(t)
+    float z = z_step;
+    for (int i = 1; i < z_count; i++){
+        //std::cout << "\nZ = " << z << std::endl;
+        float current_BB = BB * sqrtf(z);
+        float current_AA = AA * sqrtf(z);
+        int k = 0;
+
+        for (int j = 0; j < angle_count; j++){
+            verticies[k][i] = current_AA * cosinuses[j];
+            k++;
+            verticies[k][i] = current_BB * sinuses[j];
+            k++;
+            verticies[k][i] = z;
+            k++;
+//            std::cout << "Vertex(" << j << "): x = " << verticies[k - 3][i] << "; y = " << verticies[k - 2][i]
+//                      << "; z = " << verticies[k - 1][i] << std::endl;
+        }
+
+        z += z_step;
+    }
+
+    //новый цикл для нормалей :)
+    int start = 1;
+
+    for (int i = start; i < z_count - 1; i++){
+        for (int j = 0; j < 3*angle_count; j += 3){
+            if (j >= 3*angle_count - 3){
+                //std::cout << "est";
+
+                //glVertex3f(10 * verticies[j][i], 10 * verticies[j + 1][i], 10 * verticies[j + 2][i] - 700);
+                //нормаль в вершине vertex1
+                //A = vertex2 - vertex1
+                //B = vertex4 - vertex1
+                //нормальХ = Ay*Bz - By*Az;
+                //нормальУ = Az*Bx - Bz*Ax;
+                //нормальZ = Ax*By - Bx*Ay;
+                GLfloat Ax = (10 * verticies[j][i + 1]) - (10 * verticies[j][i]);
+                GLfloat Ay = (10 * verticies[j + 1][i + 1]) - (10 * verticies[j + 1][i]);
+                GLfloat Az = (10 * verticies[j + 2][i + 1]) - (10 * verticies[j + 2][i]);
+
+                GLfloat Bx = (10 * verticies[0][i]) - (10 * verticies[j][i]);
+                GLfloat By = (10 * verticies[1][i]) - (10 * verticies[j + 1][i]);
+                GLfloat Bz = (10 * verticies[2][i]) - (10 * verticies[j + 2][i]);
+
+                normals[j][i] = Ay*Bz - By*Az;
+                normals[j + 1][i] = Az*Bx - Bz*Ax;
+                normals[j + 2][i] = Ax*By - Bx*Ay;
+
+                //glVertex3f(10 * verticies[j][i + 1], 10 * verticies[j + 1][i + 1], 10 * verticies[j + 2][i + 1] - 700);
+                //glVertex3f(10 * verticies[0][i + 1], 10 * verticies[1][i + 1], 10 * verticies[2][i + 1] - 700);
+                //нормаль в вершине vertex4
+                //A = vertex3 - vertex4
+                //B = vertex1 - vertex4
+                //нормальХ = Ay*Bz - By*Az;
+                //нормальУ = Az*Bx - Bz*Ax;
+                //нормальZ = Ax*By - Bx*Ay;
+//                Ax = (10 * verticies[0][i + 1]) - (10 * verticies[0][i]);
+//                Ay = (10 * verticies[1][i + 1]) - (10 * verticies[1][i]);
+//                Az = (10 * verticies[2][i + 1]) - (10 * verticies[2][i]);
+//
+//                Bx *= -1;
+//                By *= -1;
+//                Bz *= -1;
+//
+//                normals[j][i] = Ay*Bz - By*Az;
+//                normals[j + 1][i] = Az*Bx - Bz*Ax;
+//                normals[j + 2][i] = Ax*By - Bx*Ay;
+                //glVertex3f(10 * verticies[0][i], 10 * verticies[1][i], 10 * verticies[2][i] - 700);
+                //std::cout << "Normal = " << "{" << normals[j][i] << ", " << normals[j + 1][i] << ", " << normals[j + 2][i] << "}\n";
+            } else {
+                //glVertex3f(10 * verticies[j][i], 10 * verticies[j + 1][i], 10 * verticies[j + 2][i] - 700);
+                //нормаль в вершине vertex1
+                //A = vertex2 - vertex1
+                //B = vertex4 - vertex1
+                //нормальХ = Ay*Bz - By*Az;
+                //нормальУ = Az*Bx - Bz*Ax;
+                //нормальZ = Ax*By - Bx*Ay;
+                GLfloat Ax = (10 * verticies[j][i + 1]) - (10 * verticies[j][i]);
+                GLfloat Ay = (10 * verticies[j + 1][i + 1]) - (10 * verticies[j + 1][i]);
+                GLfloat Az = (10 * verticies[j + 2][i + 1]) - (10 * verticies[j + 2][i]);
+
+                GLfloat Bx = (10 * verticies[j + 3][i]) - (10 * verticies[j][i]);
+                GLfloat By = (10 * verticies[j + 4][i]) - (10 * verticies[j + 1][i]);
+                GLfloat Bz = (10 * verticies[j + 5][i]) - (10 * verticies[j + 2][i]);
+
+                normals[j][i] = Ay*Bz - By*Az;
+                normals[j + 1][i] = Az*Bx - Bz*Ax;
+                normals[j + 2][i] = Ax*By - Bx*Ay;
+                //glVertex3f(10 * verticies[j][i + 1], 10 * verticies[j + 1][i + 1], 10 * verticies[j + 2][i + 1] - 700);
+                //glVertex3f(10 * verticies[j + 3][i + 1], 10 * verticies[j + 4][i + 1], 10 * verticies[j + 5][i + 1] - 700);
+                //нормаль в вершине vertex4
+                //A = vertex3 - vertex4
+                //B = vertex1 - vertex4
+                //нормальХ = Ay*Bz - By*Az;
+                //нормальУ = Az*Bx - Bz*Ax;
+                //нормальZ = Ax*By - Bx*Ay;
+//                Ax = (10 * verticies[j + 3][i + 1]) - (10 * verticies[j + 3][i]);
+//                Ay = (10 * verticies[j + 4][i + 1]) - (10 * verticies[j + 4][i]);
+//                Az = (10 * verticies[j + 5][i + 1]) - (10 * verticies[j + 5][i]);
+//
+//                Bx *= -1;
+//                By *= -1;
+//                Bz *= -1;
+//
+//                normals[j + 3][i] = Ay*Bz - By*Az;
+//                normals[j + 4][i] = Az*Bx - Bz*Ax;
+//                normals[j + 5][i] = Ax*By - Bx*Ay;
+                //glVertex3f(10 * verticies[j + 3][i], 10 * verticies[j + 4][i], 10 * verticies[j + 5][i] - 700);
+                //std::cout << "Normal = " << "{" << normals[j][i] << ", " << normals[j + 1][i] << ", " << normals[j + 2][i] << "}\n";
+            }
+        }
+    }
+}
+
+GLuint Parab::LoadTexture( const char * filename ){
+    glEnable(GL_TEXTURE_2D);
+
+    //    glClear(GL_COLOR_BUFFER_BIT);
+//    std::cout << "kappa123\n";
+    // Data read from the header of the BMP file
+    unsigned char header[54]; // Each BMP file begins by a 54-bytes header
+    unsigned int dataPos;     // Position in the file where the actual data begins
+    unsigned int width, height;
+    unsigned int imageSize;   // = width*height*3
+// Actual RGB data
+    unsigned char *data;
+
+    // Open the file
+    FILE * file = fopen(filename,"rb");
+    if (!file){printf("Image could not be opened\n"); return 0;}
+
+    if ( fread(header, 1, 54, file)!=54 ){ // If not 54 bytes read : problem
+        printf("Not a correct BMP file\n");
+        return false;
+    }
+
+    if ( header[0]!='B' || header[1]!='M' ){
+        printf("Not a correct BMP file\n");
+        return 0;
+    }
+
+    // Read ints from the byte array
+    dataPos    = *(int*)&(header[0x0A]);
+    imageSize  = *(int*)&(header[0x22]);
+    width      = *(int*)&(header[0x12]);
+    height     = *(int*)&(header[0x16]);
+
+    // Some BMP files are misformatted, guess missing information
+    if (imageSize==0)    imageSize=width*height*3; // 3 : one byte for each Red, Green and Blue component
+    if (dataPos==0)      dataPos=54; // The BMP header is done that way
+
+    // Create a buffer
+    data = new unsigned char [imageSize];
+
+// Read the actual data from the file into the buffer
+    fread(data,1,imageSize,file);
+
+//Everything is in memory now, the file can be closed
+    fclose(file);
+
+    // Create one OpenGL texture
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+
+// "Bind" the newly created texture : all future texture functions will modify this texture
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+// Give the image to OpenGL
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+//    glEnable(GL_TEXTURE_2D);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+
+//    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPEAT);
+
+
+
+//    glBindTexture(GL_TEXTURE_2D, textureID);
+//    glEnd();
+    delete[] data;
+    return textureID;
+
+//    // Data read from the header of the BMP file
+//    unsigned char header[54]; // Each BMP file begins by a 54-bytes header
+//    unsigned int dataPos;     // Position in the file where the actual data begins
+//    unsigned int width, height;
+//    unsigned int imageSize;   // = width*height*3
+//// Actual RGB data
+//    unsigned char * data;
+//
+//    // Open the file
+//    FILE * file = fopen(filename,"rb");
+//    if (!file){printf("Image could not be opened\n"); return 0;}
+//
+//    if ( fread(header, 1, 54, file)!=54 ){ // If not 54 bytes read : problem
+//        printf("Not a correct BMP file\n");
+//        return false;
+//    }
+//
+//    if ( header[0]!='B' || header[1]!='M' ){
+//        printf("Not a correct BMP file\n");
+//        return 0;
+//    }
+//
+//    // Read ints from the byte array
+//    dataPos    = *(int*)&(header[0x0A]);
+//    imageSize  = *(int*)&(header[0x22]);
+//    width      = *(int*)&(header[0x12]);
+//    height     = *(int*)&(header[0x16]);
+//
+//    // Some BMP files are misformatted, guess missing information
+//    if (imageSize==0)    imageSize=width*height*3; // 3 : one byte for each Red, Green and Blue component
+//    if (dataPos==0)      dataPos=54; // The BMP header is done that way
+//
+//    // Create a buffer
+//    data = new unsigned char [imageSize];
+//
+//// Read the actual data from the file into the buffer
+//    fread(data,1,imageSize,file);
+//
+////Everything is in memory now, the file can be closed
+//    fclose(file);
+//
+//    // Create one OpenGL texture
+//    GLuint textureID;
+//    glGenTextures(1, &textureID);
+//
+//// "Bind" the newly created texture : all future texture functions will modify this texture
+//    glBindTexture(GL_TEXTURE_2D, textureID);
+//
+//// Give the image to OpenGL
+//    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+//
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//
+////    glEnable(GL_TEXTURE_2D);
+//    return textureID;
+}
+
+void Parab::draw(int drawMode, GLboolean ts) {
+//    glColor3f(1.0, 1.0, 1.0);
+
+    glColor3f(0.878, 0.360, 0.662);
+//    glColor3f(0.0, 0.0, 0.3);
+//    glBegin(GL_LINE_LOOP);
+
+    //texture
+    //GLuint texture;
+    //texture = LoadTexture( "D:\\_IT\\CLionProjects\\graflab6impr\\wood-texture1.bmp" );
+
+    int start = 1;
+    for (int j = 0; j < 3*angle_count; j += 3){
+        if (drawMode){
+            glBegin(GL_POLYGON);
+        } else {
+            glBegin(GL_LINE_STRIP);
+        }
+        if (j >= 3*angle_count - 3){
+            //glTexCoord2f(0,0);
+            glNormal3f(normals[j][start], normals[j + 1][start], normals[j + 2][start]);
+            glVertex3f(10*verticies[j][start], 10*verticies[j + 1][start], 10*verticies[j + 2][start] - 700);
+            glNormal3f(normals[0][start], normals[1][start], normals[2][start]);
+            glVertex3f(10*verticies[0][start], 10*verticies[1][start], 10*verticies[2][start] - 700);
+            glNormal3f(0, 0, 1);
+            glVertex3f(0, 0, 0 - 700);
+        } else {
+//            glTexCoord2f(0.0,0.0);
+            glNormal3f(normals[j][start], normals[j + 1][start], normals[j + 2][start]);
+            glVertex3f(10*verticies[j][start], 10*verticies[j + 1][start], 10*verticies[j + 2][start] - 700);
+//            glTexCoord2f(1.0,0.0);
+            glNormal3f(normals[j + 3][start], normals[j + 4][start], normals[j + 5][start]);
+            glVertex3f(10*verticies[j + 3][start], 10*verticies[j + 4][start], 10*verticies[j + 5][start] - 700);
+//            glTexCoord2f(0.0,1.0);
+            glNormal3f(0, 0, 1);
+            glVertex3f(0, 0, 0 - 700);
+        }
+        glEnd();
+    }
+
+    for (int i = start; i < z_count - 1; i++){
+        for (int j = 0; j < 3*angle_count; j += 3){
+            if (j >= 3*angle_count - 3){
+                //std::cout << "est";
+                if (drawMode){
+                    glBegin(GL_POLYGON);
+                } else {
+                    glBegin(GL_LINE_LOOP);
+                }
+//                glNormal3f(normals[j][i], normals[j + 1][i], normals[j + 2][i]);
+//                glVertex3f(10 * verticies[j][i], 10 * verticies[j + 1][i], 10 * verticies[j + 2][i] - 700);
+
+                if (i < z_count - 2) {
+                    glNormal3f(normals[j][i], normals[j + 1][i], normals[j + 2][i]);
+                    glVertex3f(10 * verticies[j][i], 10 * verticies[j + 1][i], 10 * verticies[j + 2][i] - 700);
+                    //glNormal3f(normals[0][i], normals[1][i], normals[2][i]);
+                    glVertex3f(10 * verticies[0][i], 10 * verticies[1][i], 10 * verticies[2][i] - 700);
+                    glNormal3f(normals[0][i + 1], normals[1][i + 1], normals[2][i + 1]);
+                    glVertex3f(10 * verticies[0][i + 1], 10 * verticies[1][i + 1], 10 * verticies[2][i + 1] - 700);
+                    glNormal3f(normals[j][i + 1], normals[j + 1][i + 1], normals[j + 2][i + 1]);
+                    glVertex3f(10 * verticies[j][i + 1], 10 * verticies[j + 1][i + 1], 10 * verticies[j + 2][i + 1] - 700);
+
+                } else {
+                    glNormal3f(normals[j][i], normals[j + 1][i], normals[j + 2][i]);
+                    glVertex3f(10 * verticies[j][i], 10 * verticies[j + 1][i], 10 * verticies[j + 2][i] - 700);
+                    //glNormal3f(normals[0][i], normals[1][i], normals[2][i]);
+                    glVertex3f(10 * verticies[0][i], 10 * verticies[1][i], 10 * verticies[2][i] - 700);
+                    glVertex3f(10 * verticies[0][i + 1], 10 * verticies[1][i + 1], 10 * verticies[2][i + 1] - 700);
+                    glVertex3f(10 * verticies[j][i + 1], 10 * verticies[j + 1][i + 1], 10 * verticies[j + 2][i + 1] - 700);
+                }
+//                if (i < z_count - 2) {
+//                    glNormal3f(normals[j][i + 1], normals[j + 1][i + 1], normals[j + 2][i + 1]);
+//                }
+//                glVertex3f(10 * verticies[j][i + 1], 10 * verticies[j + 1][i + 1], 10 * verticies[j + 2][i + 1] - 700);
+//
+//                if (i < z_count - 2) {
+//                    glNormal3f(normals[0][i + 1], normals[1][i + 1], normals[2][i + 1]);
+//                }
+//                glVertex3f(10 * verticies[0][i + 1], 10 * verticies[1][i + 1], 10 * verticies[2][i + 1] - 700);
+//
+//                glNormal3f(normals[0][i], normals[1][i], normals[2][i]);
+//                glVertex3f(10 * verticies[0][i], 10 * verticies[1][i], 10 * verticies[2][i] - 700);
+                glEnd();
+            } else {
+                if (drawMode){
+                    glBegin(GL_POLYGON);
+                } else {
+                    glBegin(GL_LINE_STRIP);
+                }
+
+                if (i < z_count - 2){
+//                    std::cout << "hello:)\n";
+                    //glTexCoord2f(1.0f,1.0f);
+                    glNormal3f(normals[j][i], normals[j + 1][i], normals[j + 2][i]);
+                    glVertex3f(10 * verticies[j][i], 10 * verticies[j + 1][i], 10 * verticies[j + 2][i] - 700);
+
+                    //glTexCoord2f(1.0f,0.0f);
+                    //glNormal3f(normals[j + 3][i], normals[j + 4][i], normals[j + 5][i]);
+                    glVertex3f(10 * verticies[j + 3][i], 10 * verticies[j + 4][i], 10 * verticies[j + 5][i] - 700);
+
+                    //glTexCoord2f(0.0f,0.0f);
+                    glNormal3f(normals[j + 3][i + 1], normals[j + 4][i + 1], normals[j + 5][i + 1]);
+                    glVertex3f(10 * verticies[j + 3][i + 1], 10 * verticies[j + 4][i + 1], 10 * verticies[j + 5][i + 1] - 700);
+
+                    //glTexCoord2f(0.0f,1.0f);
+                    glNormal3f(normals[j][i + 1], normals[j + 1][i + 1], normals[j + 2][i + 1]);
+                    glVertex3f(10 * verticies[j][i + 1], 10 * verticies[j + 1][i + 1], 10 * verticies[j + 2][i + 1] - 700);
+                } else {
+                    glNormal3f(normals[j][i], normals[j + 1][i], normals[j + 2][i]);
+                    glVertex3f(10 * verticies[j][i], 10 * verticies[j + 1][i], 10 * verticies[j + 2][i] - 700);
+                    //glNormal3f(normals[j + 3][i], normals[j + 4][i], normals[j + 5][i]);
+                    glVertex3f(10 * verticies[j + 3][i], 10 * verticies[j + 4][i], 10 * verticies[j + 5][i] - 700);
+                    glVertex3f(10 * verticies[j + 3][i + 1], 10 * verticies[j + 4][i + 1], 10 * verticies[j + 5][i + 1] - 700);
+                    glVertex3f(10 * verticies[j][i + 1], 10 * verticies[j + 1][i + 1], 10 * verticies[j + 2][i + 1] - 700);
+                }
+//                glNormal3f(normals[j][i], normals[j + 1][i], normals[j + 2][i]);
+//                glVertex3f(10 * verticies[j][i], 10 * verticies[j + 1][i], 10 * verticies[j + 2][i] - 700);
+//
+//                if (i < z_count - 2){
+//                    glNormal3f(normals[j][i + 1], normals[j + 1][i + 1], normals[j + 2][i + 1]);
+//                }
+//                glVertex3f(10 * verticies[j][i + 1], 10 * verticies[j + 1][i + 1], 10 * verticies[j + 2][i + 1] - 700);
+//
+//                if (i < z_count - 2) {
+//                    glNormal3f(normals[j + 3][i + 1], normals[j + 4][i + 1], normals[j + 5][i + 1]);
+//                }
+//                glVertex3f(10 * verticies[j + 3][i + 1], 10 * verticies[j + 4][i + 1], 10 * verticies[j + 5][i + 1] - 700);
+//
+//                glNormal3f(normals[j + 3][i], normals[j + 4][i], normals[j + 5][i]);
+//                glVertex3f(10 * verticies[j + 3][i], 10 * verticies[j + 4][i], 10 * verticies[j + 5][i] - 700);
+                glEnd();
+            }
+        }
+    }
+
+    for (int i = start; i < z_count; i++) {
+        if (drawMode){
+            glBegin(GL_POLYGON);
+        } else {
+            glBegin(GL_LINE_LOOP);
+        }
+        for (int j = 0; j < 3 * angle_count; j += 3) {
+            glNormal3f(0, 0, 1);
+            glVertex3f(10 * verticies[j][i], 10 * verticies[j + 1][i], 10 * verticies[j + 2][z_count - 1] - 700);
+        }
+        glEnd();
+    }
+
+    //ЦИКЛ ОТРИСОВКИ НОРМАЛЕЙ
+//    for (int i = start; i < z_count; i++) {
+//        for (int j = 0; j < 3 * angle_count; j += 3) {
+//            glBegin(GL_LINE_STRIP);
+//            glColor3f(1, 1, 1);
+//            glVertex3f(10 * verticies[j][i], 10 * verticies[j + 1][i], 10 * verticies[j + 2][i] - 700);
+//            glVertex3f(10 * verticies[j][i] + normals[j][i] / 10, 10 * verticies[j + 1][i] + normals[j + 1][i] / 10, 10 * verticies[j + 2][i] - 700 + normals[j + 2][i] / 10);
+//            glEnd();
+//        }
+//    }
+
+//    glBegin(GL_QUADS);
+//    glTexCoord2f(1.0f,1.0f); glVertex3f( 0, 0, 0);
+//    glTexCoord2f(0.0f,1.0f); glVertex3f(512, 0, 0);
+//    glTexCoord2f(0.0f,0.0f); glVertex3f(512, 512, 0);
+//    glTexCoord2f(1.0f,0.0f); glVertex3f(0,512, 0);
+//    glEnd();
+
+//    glColor3f(1.0, 1.0, 1.0);
+//    glBegin(GL_LINE_STRIP);
+//    glVertex3f(10 * verticies[0][z_count - 2], 10 * verticies[1][z_count - 2], 10 * verticies[2][z_count - 2] - 700);
+//    glVertex3f(10 * verticies[93][z_count - 2], 10 * verticies[94][z_count - 2], 10 * verticies[95][z_count - 2] - 700);
+//    glVertex3f(10 * verticies[160][z_count - 2], 10 * verticies[161][z_count - 2], 10 * verticies[162][z_count - 2] - 700);
+//    glEnd();
+//    std::cout << "middle = " << middle << std::endl;
+
+//    if (!drawMode) {
+//        for (int i = 0; i < 3 * (angle_count / 2); i += 3) {
+//            //std::cout << "a ";
+//            //glColor3f(1.0, 1.0, 1.0);
+//            glBegin(GL_LINE_STRIP);
+//            glNormal3f(normals[i][z_count - 2], normals[i + 1][z_count - 2], normals[i + 2][z_count - 2]);
+//            glVertex3f(10 * verticies[i][z_count - 2], 10 * verticies[i + 1][z_count - 2],
+//                       10 * verticies[i + 2][z_count - 2] - 700);
+//            glNormal3f(normals[3 * angle_count - 1 - i - 2][z_count - 2],
+//                    normals[3 * angle_count - 1 - i - 1][z_count - 2],
+//                    normals[3 * angle_count - 1 - i][z_count - 2]);
+//            glVertex3f(10 * verticies[3 * angle_count - 1 - i - 2][z_count - 2],
+//                       10 * verticies[3 * angle_count - 1 - i - 1][z_count - 2],
+//                       10 * verticies[3 * angle_count - 1 - i][z_count - 2] - 700);
+//            glEnd();
+//        }
+//    } else {
+//        //glColor3f(1.0, 1.0, 1.0);
+//        glBegin(GL_POLYGON);
+//        for (int j = 0; j < 3*angle_count; j += 3){
+//            glNormal3f(normals[j][z_count - 2], normals[j + 1][z_count - 2], normals[j + 2][z_count - 2]);
+//            glVertex3f(10 * verticies[j][z_count - 2], 10 * verticies[j + 1][z_count - 2], 10 * verticies[j + 2][z_count - 2] - 700);
+//        }
+//        glEnd();
+//    }
+
+
+}
