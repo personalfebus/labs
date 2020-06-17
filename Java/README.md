@@ -1,2 +1,3 @@
 # labs
-java, c++ lab2 2 semester
+Calc - Парсер
+SparseSetupgr - Реализация обобщённого разреженного множества
