@@ -1,3 +1,0 @@
-D:/_IT/CLionProjects/graf-lab3/cmake-build-debug/CMakeFiles/edit_cache.dir
-D:/_IT/CLionProjects/graf-lab3/cmake-build-debug/CMakeFiles/graf_lab3.dir
-D:/_IT/CLionProjects/graf-lab3/cmake-build-debug/CMakeFiles/rebuild_cache.dir

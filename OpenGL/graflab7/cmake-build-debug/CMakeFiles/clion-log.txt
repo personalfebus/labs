@@ -1,6 +1,0 @@
-"C:\Program Files\JetBrains\CLion 2019.2.4\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" D:\_IT\CLionProjects\graflab7
--- Could NOT find Doxygen (missing: DOXYGEN_EXECUTABLE) 
--- Using Win32 for window creation
--- Configuring done
--- Generating done
--- Build files have been written to: D:/_IT/CLionProjects/graflab7/cmake-build-debug

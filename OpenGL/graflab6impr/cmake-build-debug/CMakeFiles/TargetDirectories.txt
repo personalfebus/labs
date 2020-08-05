@@ -1,3 +1,0 @@
-D:/_IT/CLionProjects/graflab6impr/cmake-build-debug/CMakeFiles/edit_cache.dir
-D:/_IT/CLionProjects/graflab6impr/cmake-build-debug/CMakeFiles/graflab6impr.dir
-D:/_IT/CLionProjects/graflab6impr/cmake-build-debug/CMakeFiles/rebuild_cache.dir
