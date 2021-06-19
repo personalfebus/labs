@@ -35,6 +35,7 @@ public:
 public:
     bb_graph(FunctionAST *f);
     void add_node(unique_ptr<bb_node> node);
+    void print_graph();
 };
 
 
