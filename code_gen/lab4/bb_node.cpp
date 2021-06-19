@@ -88,7 +88,7 @@ bb_graph::bb_graph(FunctionAST *f) {
                 unique_ptr<bb_node> thenPtr = make_unique<bb_node>(then_str);
 //                thenPtr->exprs = exif->Then;
                 for (int j = 0; j < exif->Then.size(); j++) {
-                    // рекурсии нет :)
+                    // rec
                     thenPtr->add_expr(move(exif->Then[j]));
                 }
                 nodes.emplace_back(move(thenPtr));
@@ -100,7 +100,7 @@ bb_graph::bb_graph(FunctionAST *f) {
                 unique_ptr<bb_node> elsePtr = make_unique<bb_node>(else_str);
                 //elsePtr->exprs = exif->Else;
                 for (int j = 0; j < exif->Else.size(); j++) {
-                    // рекурсии нет :)
+                    // rec
                     elsePtr->add_expr(move(exif->Else[j]));
                 }
                 nodes.emplace_back(move(elsePtr));
@@ -109,7 +109,52 @@ bb_graph::bb_graph(FunctionAST *f) {
                 current_node = nodes.size();
                 need_new_block = true;
             } else if (type == "for") {
+                nodes[current_node]->add_edge(nodes.size(), 1);
+                ExprAST *ex = f->body[i].release();
+                ForExprAST *exfor = (ForExprAST*)ex;
 
+                string prev_str = "for_previous ";
+                prev_str += nodes.size();
+                unique_ptr<bb_node> prevPtr = make_unique<bb_node>(prev_str);
+                prevPtr->add_expr(move(exfor->Start));
+                nodes.emplace_back(move(prevPtr));
+                nodes[nodes.size() - 1]->add_edge(nodes.size(), 1);
+
+                string cond_str = "for_condition ";
+                cond_str += nodes.size();
+                unique_ptr<bb_node> condPtr = make_unique<bb_node>(cond_str);
+                condPtr->add_expr(move(exfor->End));
+                nodes.emplace_back(move(condPtr));
+                nodes[nodes.size() - 1]->add_edge(nodes.size() - 2, 0);
+                nodes[nodes.size() - 1]->add_edge(nodes.size(), 1);
+
+                //prev --> cond
+                //cond --> next
+                //cond --> body
+                //body --> step
+                //step --> cond
+
+                string body_str = "for_body ";
+                body_str += nodes.size();
+                unique_ptr<bb_node> bodyPtr = make_unique<bb_node>(body_str);
+                for (int j = 0; j < exfor->Body.size(); j++) {
+                    // rec
+                    bodyPtr->add_expr(move(exfor->Body[j]));
+                }
+                nodes.emplace_back(move(bodyPtr));
+                nodes[nodes.size() - 1]->add_edge(nodes.size() - 2, 0);
+                nodes[nodes.size() - 1]->add_edge(nodes.size(), 1);
+
+                string step_str = "for_step ";
+                step_str += nodes.size();
+                unique_ptr<bb_node> stepPtr = make_unique<bb_node>(step_str);
+                stepPtr->add_expr(move(exfor->Step));
+                nodes.emplace_back(move(stepPtr));
+                nodes[nodes.size() - 1]->add_edge(nodes.size() - 2, 0);
+                nodes[nodes.size() - 1]->add_edge(nodes.size() - 3, 1);
+                nodes[nodes.size() - 3]->add_edge(nodes.size(), 1);
+                current_node = nodes.size();
+                need_new_block = true;
             } else {
                 if (need_new_block) {
                     string skip_str = "skip ";
