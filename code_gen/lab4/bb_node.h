@@ -18,7 +18,8 @@ public:
     vector<int> in_edges;
     vector<int> out_edges;
     string ir;
-    std::vector<std::unique_ptr<ExprAST>> exprs;
+    vector<std::unique_ptr<ExprAST>> exprs;
+    unordered_map<std::string, int> vars;
 
 public:
     bb_node(std::string str);
@@ -30,6 +31,7 @@ public:
 class bb_graph {
 public:
     vector<unique_ptr<bb_node>> nodes;
+    int tmp_var_count = 0;
     //0 node = start node
     //1 node = global return node
 public:

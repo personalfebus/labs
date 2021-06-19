@@ -36,11 +36,21 @@ bb_graph::bb_graph(FunctionAST *f) {
     nodes.push_back(move(uniquePtr1));
     //to do
     unordered_map<string, int> vars;
-    f->proto->codegen(vars);
+    string prot = f->proto->codegen(vars);
     cout << "AA\n";
-    int tmp_vars_count = vars.size(); //не ноль, а 0 + кол-во переменных в прототипе
-    vars.insert(make_pair("tmp_var", tmp_vars_count));
+    int tvc = vars.size(); //не ноль, а 0 + кол-во переменных в прототипе
+    vars.insert(make_pair("tmp_var", tvc + 1));
     cout << "BB\n";
+
+    nodes[0]->vars = vars;
+    nodes[0]->add_expr_to_ir(prot);
+    tmp_var_count = tvc + 1;
+
+    string gl_ret_str = "%";
+    gl_ret_str += to_string(tvc);
+    gl_ret_str += " = load i32, i32 *%ret_val_v.1\nret i32 %2\n"; //extra \n
+    nodes[1]->add_expr_to_ir(gl_ret_str);
+
     string block = "";
 //    bb_node entry_node(block);
 //    for (int i = 0; i < body.size(); i++) {
@@ -164,7 +174,7 @@ bb_graph::bb_graph(FunctionAST *f) {
                 }
                 nodes[current_node]->add_expr(move(f->body[i]));
             }
-            cout << "body_size = " << f->body.size() << "; nodes_size = " << nodes[0]->exprs.size() << endl;
+            //cout << "body_size = " << f->body.size() << "; nodes_size = " << nodes[0]->exprs.size() << endl;
         }
     }
 }
@@ -175,10 +185,11 @@ void bb_graph::add_node(unique_ptr<bb_node> node) {
 
 void bb_graph::print_graph() {
     cout << nodes.size() << endl;
+
     printf("\ndigraph {\n");
 
     for (int i = 0; i < nodes.size(); i++) {
-        printf("%s[shape=square];\n", nodes[i]->label.c_str());
+        printf("%s[shape=square, label=\"%s:\n\n%s\"];\n", nodes[i]->label.c_str(), nodes[i]->label.c_str(), nodes[i]->ir.c_str());
     }
 
     for (int i = 0; i < nodes.size(); i++) {

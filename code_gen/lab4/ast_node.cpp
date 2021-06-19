@@ -264,7 +264,7 @@ std::string PrototypeAST::codegen(std::unordered_map<std::string, int> &vars) {
         ir += " = alloca i32\n";
         ir += "store i32 %";
         ir += to_string(vars.size());
-        ir += ", i32 %";
+        ir += ", i32 *%";
         ir += arg;
         ir += "_v.";
         ir += to_string(version);
@@ -272,8 +272,9 @@ std::string PrototypeAST::codegen(std::unordered_map<std::string, int> &vars) {
         ir += '\n';
         vars.insert(make_pair(arg, version));
     }
-    cout << ir << endl;
-    return "";
+    ir += "%ret_val_v.0 = alloca i32\n";
+    //cout << ir << endl;
+    return ir;
 }
 
 FunctionAST::FunctionAST(unique_ptr<PrototypeAST> &proto, vector<unique_ptr<ExprAST>> &body) {
