@@ -1,0 +1,14 @@
+main(a, b){
+    for(i = 10 , i , i = i - 1){
+        b = b + 1
+        a = a - b
+    }
+    c = a + b
+    if (b) {
+    	c = b
+    	b = 0
+    } else {
+    	b = a + c
+    }
+    return b + 25
+}

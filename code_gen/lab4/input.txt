@@ -1,0 +1,6 @@
+main(a, b){
+    b = b + 1 + 5
+    a = a - b
+    c = 3 + a + b
+    return b + 25
+}
