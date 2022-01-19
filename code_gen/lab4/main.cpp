@@ -600,5 +600,6 @@ int main(int argc, char *argv[])
 //    } else {
 //        cout<<"One argument(filepath) expected"<<endl;
 //    }
+    graph->print_graph();
     return 0;
 }

@@ -65,6 +65,7 @@ public:
 
 
 class ForExprAST : public ExprAST {
+public:
     std::unique_ptr<ExprAST> Start, End, Step;
     std::vector<std::unique_ptr<ExprAST>> Body;
 
